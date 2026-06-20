@@ -3,7 +3,7 @@
 :root {
   /* Color System */
   --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-bg: rgba(255, 255, 255, 0.224);
   --card-border: 1px solid rgba(226, 232, 240, 0.8);
 
   --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
@@ -54,7 +54,7 @@
 
 body {
   font-family: var(--font-family);
-  background: var(--bg-gradient);
+  background: url("/assets/abstract.png") center/cover no-repeat fixed;
   min-height: 100vh;
   height: auto;
   padding: 2rem 1rem;
@@ -72,7 +72,7 @@ main {
 
 /* Unified App Container Card */
 .container {
-  width: min(900px, 80vw);
+  width: min(600px, 80vw);
   background: var(--card-bg);
   border: var(--card-border);
   padding: 2.5rem 2rem;
@@ -250,6 +250,18 @@ main {
 
 .taskList li:hover::before {
   opacity: 1;
+}
+
+.taskList li.completed {
+  background: var(--success-bg);
+  border-left: 4px solid var(--success-color);
+  opacity: 0.5;
+}
+
+.taskList li.completed .taskText {
+  text-decoration: line-through;
+  text-decoration-color: var(--danger-color);
+  text-decoration-thickness: 2px;
 }
 
 /* Task Content Typography */

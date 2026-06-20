@@ -17,8 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Updates the tasks state by persisting it to localStorage, and triggers a re-render
   function updateTasksState(updatedTasks) {
+    console.log("new state: ", updatedTasks);
     // Before saving to localStorage, make sure no task is saved in editing mode
     tasks = updatedTasks.map(task => ({ ...task, isEditing: false }));
+    console.log(updatedTasks);
     localStorage.setItem("tasks", JSON.stringify(tasks)); //persist tasks to localStorage
     renderTasks(); // re-render the tasks
   }
@@ -50,9 +52,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     tasks.forEach((task) => {
       const li = document.createElement("li");
+      li.dataset.id = task.id; // store unique id in dataset
       const iconsWrapper = document.createElement("div");
       iconsWrapper.className = "taskIcons";
-      iconsWrapper.dataset.id = task.id; // store unique id in dataset
+      iconsWrapper.dataset.id = task.id;
+
+      // add completed class if task is completed
+      if (task.completed) li.classList.add("completed");
 
       // Check if the current task is in editing state
       if (task.isEditing) {
@@ -121,24 +127,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function renderTasksViewMode() {
-
-  }
-
 
   function handleTaskAction(e) {
     const clickedBtnClassList = e.target.classList;
-    const target = e.target;
+    const clickedElement = e.target;
 
     if (clickedBtnClassList.contains("editBtn")) {
-      editTask(target);
+      editTask(clickedElement);
     } else if (clickedBtnClassList.contains("deleteBtn")) {
-      deleteTask(target);
+      deleteTask(clickedElement);
     } else if (clickedBtnClassList.contains("saveBtn")) {
-      saveTask(target);
+      saveTask(clickedElement);
     } else if (clickedBtnClassList.contains("cancelBtn")) {
       cancelEdit();
+    } else {
+      completeTask(clickedElement);
     }
+  }
+
+  function completeTask(clickedElement) {
+    const liElement = clickedElement.tagName === "LI" ? clickedElement : clickedElement.closest("li");
+    liElement.classList.toggle("completed");
+    const taskId = Number(liElement.dataset.id);
+    const updatedTasks = tasks.map(task => task.id === taskId ? { ...task, completed: !task.completed } : task);
+    updateTasksState(updatedTasks);
   }
 
   function editTask(editIconBtn) {

@@ -1,3 +1,4 @@
+// This code runs when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
   // DOM Element Selectors
   const taskInputEl = document.querySelector(".taskInput");
@@ -127,21 +128,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleTaskAction(e) {
     const clickedBtnClassList = e.target.classList;
+    const target = e.target;
 
     if (clickedBtnClassList.contains("editBtn")) {
-      editTask(e);
+      editTask(target);
     } else if (clickedBtnClassList.contains("deleteBtn")) {
-      deleteTask(e);
+      deleteTask(target);
     } else if (clickedBtnClassList.contains("saveBtn")) {
-      saveTask(e);
+      saveTask(target);
     } else if (clickedBtnClassList.contains("cancelBtn")) {
-      cancelEdit(e);
+      cancelEdit();
     }
   }
 
-  function editTask(e) {
-    const taskId = Number(e.target.parentElement.dataset.id);
-
+  function editTask(editIconBtn) {
+    const taskId = Number(editIconBtn.parentElement.dataset.id);
     // Set isEditing to true for the selected task, and false for all others
     tasks = tasks.map((task) =>
       task.id === taskId ? { ...task, isEditing: true } : { ...task, isEditing: false }
@@ -149,9 +150,9 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTasks();
   }
 
-  function saveTask(e) {
-    const taskId = Number(e.target.parentElement.dataset.id); //get id from the li element
-    const li = e.target.closest("li"); //get the li element
+  function saveTask(saveBtn) {
+    const taskId = Number(saveBtn.parentElement.dataset.id); //get id from the li element
+    const li = saveBtn.closest("li"); //get the li element
     const inputEl = li.querySelector(".editInput"); //get the input element
     const newText = inputEl.value.trim(); //get the input value
 
@@ -164,16 +165,14 @@ document.addEventListener("DOMContentLoaded", () => {
     updateTasksState(updatedTasks);
   }
 
-  function cancelEdit(e) {
+  function cancelEdit() {
     // Reset editing states and re-render
     tasks = tasks.map((task) => ({ ...task, isEditing: false }));
     renderTasks();
   }
 
-  function deleteTask(e) {
-    if (!e.target.classList.contains("deleteBtn")) return;
-
-    const taskId = Number(e.target.parentElement.dataset.id);
+  function deleteTask(deleteIconBtn) {
+    const taskId = Number(deleteIconBtn.parentElement.dataset.id);
     const updatedTasks = tasks.filter((task) => task.id !== taskId);
 
     updateTasksState(updatedTasks);

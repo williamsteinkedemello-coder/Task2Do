@@ -72,8 +72,7 @@ main {
 
 /* Unified App Container Card */
 .container {
-  width: 100%;
-  max-width: 550px;
+  width: min(900px, 80vw);
   background: var(--card-bg);
   border: var(--card-border);
   padding: 2.5rem 2rem;
@@ -270,6 +269,8 @@ main {
   gap: 0.5rem;
   align-items: center;
   flex-shrink: 0;
+  border-left: 1px solid var(--border-color);
+  padding-left: 1rem;
 }
 
 /* Action Circle Buttons */
@@ -354,7 +355,6 @@ main {
 /* Edit View Input Field */
 .editInput {
   flex: 1;
-  margin-right: 1rem;
   font-family: var(--font-family);
   font-size: 1rem;
   font-weight: 500;

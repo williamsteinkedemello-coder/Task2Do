@@ -176,6 +176,16 @@ main {
   box-shadow: none;
 }
 
+.emptyState {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+  user-select: none;
+}
+
 /* Task List */
 .taskList {
   list-style: none;

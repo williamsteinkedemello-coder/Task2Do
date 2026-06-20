@@ -8,10 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Event Listeners
   taskBtnEl.addEventListener("click", addNewTask);
-  taskListEl.addEventListener("click", deleteTask);
-  taskListEl.addEventListener("click", editTask);
-  taskListEl.addEventListener("click", saveTask);     // Added for save
-  taskListEl.addEventListener("click", cancelEdit);   // Added for cancel
+  taskListEl.addEventListener("click", handleTaskAction);
+
 
   // Initial render when the DOM loads
   renderTasks();
@@ -20,26 +18,34 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateTasksState(updatedTasks) {
     // Before saving to localStorage, make sure no task is saved in editing mode
     tasks = updatedTasks.map(task => ({ ...task, isEditing: false }));
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    renderTasks();
+    localStorage.setItem("tasks", JSON.stringify(tasks)); //persist tasks to localStorage
+    renderTasks(); // re-render the tasks
   }
 
   function addNewTask(event) {
     event.preventDefault();
-    const inputText = taskInputEl.value.trim();
+    const inputText = taskInputEl.value.trim(); //get input text
 
-    if (!inputText) return;
+    if (!inputText) return; //if input text is empty, return
 
-    const newlyCreatedTask = { id: Date.now(), text: inputText };
+    const newlyCreatedTask = { id: Date.now(), text: inputText, isEditing: false }; //create new task with unique id
 
     // updateTasksState automatically calls renderTasks()
-    updateTasksState([...tasks, newlyCreatedTask]);
+    updateTasksState([...tasks, newlyCreatedTask]); // update tasks state with the new task
 
     taskInputEl.value = ""; // reset input text
   }
 
   function renderTasks() {
     taskListEl.innerHTML = "";
+
+    if (tasks.length === 0) {
+      const emptyStateParagraph = document.createElement("p");
+      emptyStateParagraph.className = "emptyState";
+      emptyStateParagraph.textContent = "No tasks found. Create a task to get started!";
+      taskListEl.appendChild(emptyStateParagraph);
+      return;
+    }
 
     tasks.forEach((task) => {
       const li = document.createElement("li");
@@ -118,9 +124,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   }
 
-  function editTask(e) {
-    if (!e.target.classList.contains("editBtn")) return;
 
+  function handleTaskAction(e) {
+    const clickedBtnClassList = e.target.classList;
+
+    if (clickedBtnClassList.contains("editBtn")) {
+      editTask(e);
+    } else if (clickedBtnClassList.contains("deleteBtn")) {
+      deleteTask(e);
+    } else if (clickedBtnClassList.contains("saveBtn")) {
+      saveTask(e);
+    } else if (clickedBtnClassList.contains("cancelBtn")) {
+      cancelEdit(e);
+    }
+  }
+
+  function editTask(e) {
     const taskId = Number(e.target.parentElement.dataset.id);
 
     // Set isEditing to true for the selected task, and false for all others
@@ -131,14 +150,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function saveTask(e) {
-    if (!e.target.classList.contains("saveBtn")) return;
+    const taskId = Number(e.target.parentElement.dataset.id); //get id from the li element
+    const li = e.target.closest("li"); //get the li element
+    const inputEl = li.querySelector(".editInput"); //get the input element
+    const newText = inputEl.value.trim(); //get the input value
 
-    const taskId = Number(e.target.parentElement.dataset.id);
-    const li = e.target.closest("li");
-    const inputEl = li.querySelector(".editInput");
-    const newText = inputEl.value.trim();
-
-    if (!newText) return;
+    if (!newText) return; //if input value is empty, return
 
     const updatedTasks = tasks.map((task) =>
       task.id === taskId ? { ...task, text: newText } : task
@@ -148,8 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function cancelEdit(e) {
-    if (!e.target.classList.contains("cancelBtn")) return;
-
     // Reset editing states and re-render
     tasks = tasks.map((task) => ({ ...task, isEditing: false }));
     renderTasks();

@@ -31,10 +31,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!inputText) return;
 
     const newlyCreatedTask = { id: Date.now(), text: inputText };
-    
+
     // updateTasksState automatically calls renderTasks()
     updateTasksState([...tasks, newlyCreatedTask]);
-    
+
     taskInputEl.value = ""; // reset input text
   }
 
@@ -90,7 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       } else {
         // Normal View Mode
-        li.textContent = task.text;
+        const textSpan = document.createElement("span");
+        textSpan.className = "taskText";
+        textSpan.textContent = task.text;
+        li.appendChild(textSpan);
 
         // Edit icon
         const editBtn = document.createElement("span");
@@ -112,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderTasksViewMode() {
-    
+
   }
 
   function editTask(e) {
@@ -121,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const taskId = Number(e.target.parentElement.dataset.id);
 
     // Set isEditing to true for the selected task, and false for all others
-    tasks = tasks.map((task) => 
+    tasks = tasks.map((task) =>
       task.id === taskId ? { ...task, isEditing: true } : { ...task, isEditing: false }
     );
     renderTasks();
@@ -137,10 +140,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!newText) return;
 
-    const updatedTasks = tasks.map((task) => 
+    const updatedTasks = tasks.map((task) =>
       task.id === taskId ? { ...task, text: newText } : task
     );
-    
+
     updateTasksState(updatedTasks);
   }
 
@@ -154,10 +157,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function deleteTask(e) {
     if (!e.target.classList.contains("deleteBtn")) return;
-  
+
     const taskId = Number(e.target.parentElement.dataset.id);
     const updatedTasks = tasks.filter((task) => task.id !== taskId);
-    
+
     updateTasksState(updatedTasks);
   }
 });

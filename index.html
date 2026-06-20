@@ -4,23 +4,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To-Do App</title>
+  <title>Task2Do</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
   <main>
     <div class="container">
-      <h1 class="title">To-Do List</h1>
+      <header class="app-header">
+        <h1 class="title">Task2Do</h1>
+        <p class="subtitle">Stay organized and get things done</p>
+      </header>
+
       <form id="taskForm">
-        <input class="taskInput" placeholder="Task name" aria-label="Task name" />
-        <button type="submit" class="taskCreateBtn">Add new task</button>
+        <input class="taskInput" placeholder="Write a new task..." aria-label="Task name" autocomplete="off" />
+        <button type="submit" class="taskCreateBtn">
+          <span class="material-icons">add</span>
+          <span>Add Task</span>
+        </button>
       </form>
+
+      <ul class="taskList"></ul>
     </div>
-    <ul class="taskList"></ul>
-
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
   </main>
 
   <script src="assets/js/app.js"></script>

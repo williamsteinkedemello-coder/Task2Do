@@ -1,5 +1,9 @@
+import { images, createEmptyStateParagraph } from "./utils.js";
+
 // This code runs when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
+  //Hero image
+
   // DOM Element Selectors
   const taskInputEl = document.querySelector(".taskInput");
   const taskBtnEl = document.querySelector(".taskCreateBtn");
@@ -10,6 +14,32 @@ document.addEventListener("DOMContentLoaded", () => {
   // Event Listeners
   taskBtnEl.addEventListener("click", addNewTask);
   taskListEl.addEventListener("click", handleTaskAction);
+
+
+  /*  
+  let heroImageIndex = 0;
+
+  setInterval(changeBackground, 5000);
+ 
+   function changeBackground() {
+ 
+     const bg = document.body;
+ 
+     // Fade out
+     bg.style.setProperty("--bg-opacity", "0");
+ 
+     setTimeout(() => {
+       // Change image
+       document.body.style.backgroundImage = `url('${images[heroImageIndex]}')`;
+ 
+       // Fade in
+       bg.style.setProperty("--bg-opacity", "");
+ 
+       // Move to next image
+       heroImageIndex = (heroImageIndex + 1) % images.length;
+     }, 1000); // matches CSS fade duration
+   } */
+
 
 
   // Initial render when the DOM loads
@@ -40,12 +70,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderTasks() {
     taskListEl.innerHTML = "";
 
+
     if (tasks.length === 0) {
-      const emptyStateParagraph = document.createElement("p");
-      emptyStateParagraph.className = "emptyState";
-      emptyStateParagraph.textContent = "No tasks found. Create a task to get started!";
-      taskListEl.appendChild(emptyStateParagraph);
-      return;
+      createEmptyStateParagraph(taskListEl)
     }
 
     tasks.forEach((task) => {

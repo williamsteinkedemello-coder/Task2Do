@@ -54,13 +54,14 @@
 
 body {
   font-family: var(--font-family);
-  background: url("../hero-background2.jpg") center/cover no-repeat fixed;
+  background: url("../hero-background2.png") center/cover no-repeat fixed;
   min-height: 100vh;
   height: auto;
   padding: 2rem 1rem;
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-image 1s ease-in-out;
 }
 
 main {

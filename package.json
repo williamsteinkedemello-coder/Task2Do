@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node ./backend/server.js"
+    "start": "nodemon ./backend/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "nodemon": "^3.1.14",
+    "sqlite3": "^6.0.1"
   },
-  "devDependencies": {},
   "description": ""
 }

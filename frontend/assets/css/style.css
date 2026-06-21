@@ -6,8 +6,8 @@
   --card-bg: rgba(255, 255, 255, 0.224);
   --card-border: 1px solid rgba(226, 232, 240, 0.8);
 
-  --primary-gradient: linear-gradient(135deg, #2225ff 0%, #0d00fe 100%);
-  --primary-hover: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  --primary-gradient: linear-gradient(135deg, #2226ff51 0%, #0d00fe 100%);
+  --primary-hover: linear-gradient(135deg, #4f46e5 0%, #2a1fa0 100%);
   --primary-glow: rgba(99, 102, 241, 0.15);
 
   --text-primary: #0f172a;
@@ -101,7 +101,7 @@ main {
 
 .subtitle {
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-weight: 500;
 }
 

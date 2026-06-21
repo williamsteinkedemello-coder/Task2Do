@@ -17,10 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Updates the tasks state by persisting it to localStorage, and triggers a re-render
   function updateTasksState(updatedTasks) {
-    console.log("new state: ", updatedTasks);
     // Before saving to localStorage, make sure no task is saved in editing mode
     tasks = updatedTasks.map(task => ({ ...task, isEditing: false }));
-    console.log(updatedTasks);
     localStorage.setItem("tasks", JSON.stringify(tasks)); //persist tasks to localStorage
     renderTasks(); // re-render the tasks
   }

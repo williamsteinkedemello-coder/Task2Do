@@ -1,2 +1,19 @@
-.vscode/
-READ.md
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Build output (if you add bundlers later)
+dist/
+build/

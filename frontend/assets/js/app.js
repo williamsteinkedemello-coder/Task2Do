@@ -1,4 +1,11 @@
-import { images, createEmptyStateParagraph } from "./utils.js";
+import {
+  handleTasksUpdate,
+  saveTasksToDatabase,
+  getTasksFromDatabase,
+  deleteTaskFromDatabase,
+  updateTaskOnDatabase,
+  findTaskByIdOnElementClick
+} from "./utils.js";
 
 // This code runs when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
@@ -9,12 +16,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskBtnEl = document.querySelector(".taskCreateBtn");
   const taskListEl = document.querySelector(".taskList");
 
-  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
   // Event Listeners
   taskBtnEl.addEventListener("click", addNewTask);
   taskListEl.addEventListener("click", handleTaskAction);
 
+
+
+
+
+  let tasks = [];
+
+  // Fetch tasks from database on load
+  getTasksFromDatabase().then(fetchedTasks => {
+    console.log("tasks from db: ", fetchedTasks);
+    tasks = fetchedTasks || [];
+    renderTasks()
+  });
 
   /*  
   let heroImageIndex = 0;
@@ -45,37 +63,43 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial render when the DOM loads
   renderTasks();
 
-  // Updates the tasks state by persisting it to localStorage, and triggers a re-render
-  function updateTasksState(updatedTasks) {
-    // Before saving to localStorage, make sure no task is saved in editing mode
-    tasks = updatedTasks.map(task => ({ ...task, isEditing: false }));
-    localStorage.setItem("tasks", JSON.stringify(tasks)); //persist tasks to localStorage
+  // Update the tasks state and triggers a re-render
+  function setTasks(updatedTasks) {
+    tasks = updatedTasks;
     renderTasks(); // re-render the tasks
   }
 
-  function addNewTask(event) {
+  async function addNewTask(event) {
     event.preventDefault();
     const inputText = taskInputEl.value.trim(); //get input text
 
     if (!inputText) return; //if input text is empty, return
 
-    const newlyCreatedTask = { id: Date.now(), text: inputText, isEditing: false }; //create new task with unique id
+    const newlyCreatedTask = { text: inputText, isEditing: false, completed: false }; //create new task with unique id
 
-    // updateTasksState automatically calls renderTasks()
-    updateTasksState([...tasks, newlyCreatedTask]); // update tasks state with the new task
+    try {
+      await saveTasksToDatabase(newlyCreatedTask);
+      // setTasks automatically calls renderTasks()
+      setTasks([...tasks, newlyCreatedTask]); // update tasks state with the new task
 
-    taskInputEl.value = ""; // reset input text
+      taskInputEl.value = ""; // reset input text
+    } catch (err) {
+      handleTasksUpdate(taskListEl, "Failed to save tasks. Please try again.");
+    }
+
+
+
   }
 
   function renderTasks() {
     taskListEl.innerHTML = "";
 
-
     if (tasks.length === 0) {
-      createEmptyStateParagraph(taskListEl)
+      handleTasksUpdate(taskListEl)
     }
 
     tasks.forEach((task) => {
+
       const li = document.createElement("li");
       li.dataset.id = task.id; // store unique id in dataset
       const iconsWrapper = document.createElement("div");
@@ -112,19 +136,9 @@ document.addEventListener("DOMContentLoaded", () => {
         iconsWrapper.appendChild(saveBtn);
         iconsWrapper.appendChild(cancelBtn);
 
+
         // Also allow saving with Enter or cancelling with Escape
-        inputEl.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") {
-            const newText = inputEl.value.trim();
-            if (newText) {
-              const updated = tasks.map(t => t.id === task.id ? { ...t, text: newText } : t);
-              updateTasksState(updated);
-            }
-          } else if (e.key === "Escape") {
-            tasks = tasks.map(t => t.id === task.id ? { ...t, isEditing: false } : t);
-            renderTasks();
-          }
-        });
+        taskListEl.addEventListener("keydown", handleEditKeys);
 
       } else {
         // Normal View Mode
@@ -152,54 +166,94 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function handleEditKeys(e) {
+    if (!e.target.classList.contains("editInput")) {
+      return;
+    }
+    const { taskClicked } = findTaskByIdOnElementClick(e.target, tasks);
 
-  function handleTaskAction(e) {
-    const clickedBtnClassList = e.target.classList;
+    if (e.key === "Enter") {
+      const newText = e.target.value.trim();
+      if (newText) {
+        const taskToUpdate = { ...taskClicked, text: newText, isEditing: false };
+        const updated = tasks.map(task => task.id === taskClicked.id ? taskToUpdate : task);
+        updateTaskOnDatabase(taskToUpdate);
+        setTasks(updated);
+
+      }
+    } else if (e.key === "Escape") {
+      const taskToUpdate = { ...taskClicked, isEditing: false };
+      const updatedTasks = tasks.map(task => task.id === taskClicked.id ? taskToUpdate : task);
+      setTasks(updatedTasks);
+    }
+  }
+
+
+  async function handleTaskAction(e) {
     const clickedElement = e.target;
+    const { taskClicked, liElement } = findTaskByIdOnElementClick(clickedElement, tasks);
+    const clickedBtnClassList = clickedElement.classList;
 
     if (clickedBtnClassList.contains("editBtn")) {
+      if (taskClicked?.completed) {
+        console.log("Completed tasks cannot be edited.");
+        return;
+      }
+
       editTask(clickedElement);
     } else if (clickedBtnClassList.contains("deleteBtn")) {
-      deleteTask(clickedElement);
+      const taskId = Number(clickedElement.parentElement.dataset.id);
+      const updatedTasks = await deleteTaskFromDatabase(tasks, taskId);
+      setTasks(updatedTasks);
+
     } else if (clickedBtnClassList.contains("saveBtn")) {
       saveTask(clickedElement);
     } else if (clickedBtnClassList.contains("cancelBtn")) {
       cancelEdit();
-    } else {
+    } else if (!liElement.classList.contains("editing")) {
       completeTask(clickedElement);
     }
   }
 
-  function completeTask(clickedElement) {
-    const liElement = clickedElement.tagName === "LI" ? clickedElement : clickedElement.closest("li");
-    liElement.classList.toggle("completed");
-    const taskId = Number(liElement.dataset.id);
-    const updatedTasks = tasks.map(task => task.id === taskId ? { ...task, completed: !task.completed } : task);
-    updateTasksState(updatedTasks);
+  async function completeTask(clickedElement) {
+    const { taskClicked } =
+      findTaskByIdOnElementClick(clickedElement, tasks);
+
+    const updatedTask = {
+      ...taskClicked,
+      completed: Boolean(!taskClicked.completed),
+    };
+
+    await updateTaskOnDatabase(updatedTask);
+
+    const updatedTasks = tasks.map(task =>
+      task.id === updatedTask.id
+        ? updatedTask
+        : task
+    );
+
+    setTasks(updatedTasks);
   }
 
-  function editTask(editIconBtn) {
-    const taskId = Number(editIconBtn.parentElement.dataset.id);
+  function editTask(clickedElement) {
+    const { taskClicked } = findTaskByIdOnElementClick(clickedElement, tasks);
     // Set isEditing to true for the selected task, and false for all others
-    tasks = tasks.map((task) =>
-      task.id === taskId ? { ...task, isEditing: true } : { ...task, isEditing: false }
-    );
+    tasks = tasks.map((task) => task.id === taskClicked.id ? { ...task, isEditing: true } : { ...task, isEditing: false });
     renderTasks();
   }
 
-  function saveTask(saveBtn) {
-    const taskId = Number(saveBtn.parentElement.dataset.id); //get id from the li element
-    const li = saveBtn.closest("li"); //get the li element
-    const inputEl = li.querySelector(".editInput"); //get the input element
+  async function saveTask(saveBtn) {
+    let { taskClicked, liElement } = findTaskByIdOnElementClick(saveBtn, tasks);
+    const inputEl = liElement.querySelector(".editInput"); //get the input element
     const newText = inputEl.value.trim(); //get the input value
 
     if (!newText) return; //if input value is empty, return
 
-    const updatedTasks = tasks.map((task) =>
-      task.id === taskId ? { ...task, text: newText } : task
-    );
+    taskClicked = { ...taskClicked, text: newText, isEditing: false };
+    tasks = tasks.map((task) => task.id === taskClicked.id ? taskClicked : task);
+    await updateTaskOnDatabase(taskClicked);
 
-    updateTasksState(updatedTasks);
+    setTasks(tasks);
   }
 
   function cancelEdit() {
@@ -208,10 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTasks();
   }
 
-  function deleteTask(deleteIconBtn) {
-    const taskId = Number(deleteIconBtn.parentElement.dataset.id);
-    const updatedTasks = tasks.filter((task) => task.id !== taskId);
 
-    updateTasksState(updatedTasks);
-  }
 });
+

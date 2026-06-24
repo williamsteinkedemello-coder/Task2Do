@@ -12,7 +12,6 @@ import {
 
 // This code runs when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
-  //Hero image
 
   // DOM Element Selectors
   const taskInputEl = document.querySelector(".taskInput");
@@ -24,10 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
   taskBtnEl.addEventListener("click", addNewTask);
   taskListEl.addEventListener("click", handleTaskAction);
 
-
-
-
-
   let tasks = [];
 
   // Fetch tasks from database on load
@@ -36,32 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
     tasks = fetchedTasks || [];
     renderTasks()
   });
-
-  /*  
-  let heroImageIndex = 0;
-
-  setInterval(changeBackground, 5000);
- 
-   function changeBackground() {
- 
-     const bg = document.body;
- 
-     // Fade out
-     bg.style.setProperty("--bg-opacity", "0");
- 
-     setTimeout(() => {
-       // Change image
-       document.body.style.backgroundImage = `url('${images[heroImageIndex]}')`;
- 
-       // Fade in
-       bg.style.setProperty("--bg-opacity", "");
- 
-       // Move to next image
-       heroImageIndex = (heroImageIndex + 1) % images.length;
-     }, 1000); // matches CSS fade duration
-   } */
-
-
 
   // Initial render when the DOM loads
   renderTasks();
@@ -87,8 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       handleTasksUpdate(taskListEl, "Failed to save tasks. Please try again.");
     }
-
-
 
   }
 
@@ -203,7 +170,6 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Completed tasks cannot be edited.");
         return;
       }
-
       editTask(clickedElement);
     } else if (clickedBtnClassList.contains("deleteBtn")) {
       const taskId = Number(clickedElement.parentElement.dataset.id);
@@ -262,8 +228,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function cancelEdit() {
     // Reset editing states and re-render
-    tasks = tasks.map((task) => ({ ...task, isEditing: false }));
-    renderTasks();
+    tasks = tasks.map((task) => (task{ ...task, isEditing: false }));
+renderTasks();
   }
 
 

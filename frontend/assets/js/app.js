@@ -170,6 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Completed tasks cannot be edited.");
         return;
       }
+
       editTask(clickedElement);
     } else if (clickedBtnClassList.contains("deleteBtn")) {
       const taskId = Number(clickedElement.parentElement.dataset.id);
@@ -228,8 +229,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function cancelEdit() {
     // Reset editing states and re-render
-    tasks = tasks.map((task) => (task{ ...task, isEditing: false }));
-renderTasks();
+    tasks = tasks.map((task) => ({ ...task, isEditing: false }));
+    renderTasks();
   }
 
 

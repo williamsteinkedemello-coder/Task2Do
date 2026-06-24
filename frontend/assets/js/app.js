@@ -1,11 +1,14 @@
 import {
   handleTasksUpdate,
+  findTaskByIdOnElementClick
+} from "./utils.js";
+
+import {
   saveTasksToDatabase,
   getTasksFromDatabase,
   deleteTaskFromDatabase,
   updateTaskOnDatabase,
-  findTaskByIdOnElementClick
-} from "./utils.js";
+} from "./service.js";
 
 // This code runs when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
@@ -66,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Update the tasks state and triggers a re-render
   function setTasks(updatedTasks) {
     tasks = updatedTasks;
-    renderTasks(); // re-render the tasks
+    renderTasks();
   }
 
   async function addNewTask(event) {
@@ -75,14 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!inputText) return; //if input text is empty, return
 
-    const newlyCreatedTask = { text: inputText, isEditing: false, completed: false }; //create new task with unique id
 
     try {
-      await saveTasksToDatabase(newlyCreatedTask);
-      // setTasks automatically calls renderTasks()
-      setTasks([...tasks, newlyCreatedTask]); // update tasks state with the new task
-
-      taskInputEl.value = ""; // reset input text
+      const taskToBeSent = { text: inputText, isEditing: false, completed: false };
+      const taskRetrieved = await saveTasksToDatabase(taskToBeSent);
+      setTasks([...tasks, taskRetrieved]);
+      taskInputEl.value = "";
     } catch (err) {
       handleTasksUpdate(taskListEl, "Failed to save tasks. Please try again.");
     }
@@ -138,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         // Also allow saving with Enter or cancelling with Escape
-        taskListEl.addEventListener("keydown", handleEditKeys);
+        taskListEl.addEventListener("keydown", handleEditInputKeydown);
 
       } else {
         // Normal View Mode
@@ -166,12 +167,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function handleEditKeys(e) {
+  function handleEditInputKeydown(e) {
+    //if the event is not triggered by an edit input, return
     if (!e.target.classList.contains("editInput")) {
       return;
     }
     const { taskClicked } = findTaskByIdOnElementClick(e.target, tasks);
 
+    //if the event is triggered by an enter key in the edit input
     if (e.key === "Enter") {
       const newText = e.target.value.trim();
       if (newText) {
@@ -181,6 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setTasks(updated);
 
       }
+      //if the event is triggered by an escape key in the edit input
     } else if (e.key === "Escape") {
       const taskToUpdate = { ...taskClicked, isEditing: false };
       const updatedTasks = tasks.map(task => task.id === taskClicked.id ? taskToUpdate : task);
@@ -238,8 +242,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function editTask(clickedElement) {
     const { taskClicked } = findTaskByIdOnElementClick(clickedElement, tasks);
     // Set isEditing to true for the selected task, and false for all others
-    tasks = tasks.map((task) => task.id === taskClicked.id ? { ...task, isEditing: true } : { ...task, isEditing: false });
-    renderTasks();
+    const updatedTasks = tasks.map((task) => task.id === taskClicked.id ? { ...task, isEditing: true } : { ...task, isEditing: false });
+    setTasks(updatedTasks);
   }
 
   async function saveTask(saveBtn) {

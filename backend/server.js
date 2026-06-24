@@ -19,7 +19,7 @@ app.get("/tasks", (req, res) => {
         if (err) {
             throw err;
         }
-        res.json(rows);
+        res.status(200).json(rows);
     });
 });
 
@@ -48,12 +48,6 @@ app.post("/tasks", (req, res) => {
     );
 });
 
-app.delete("/tasks/:id", (req, res) => {
-    const taskId = req.params.id;
-    db.run("DELETE FROM todos WHERE id = ?", taskId);
-
-    res.send("Task deleted successfully");
-});
 
 app.put("/tasks/:id", (req, res) => {
     const taskId = req.params.id;
@@ -68,12 +62,19 @@ app.put("/tasks/:id", (req, res) => {
                 return res.status(500).json({ error: err.message });
             }
 
-            res.json({
+            res.status(200).json({
                 success: true,
                 rowsUpdated: this.changes
             });
         }
     );
+});
+
+app.delete("/tasks/:id", (req, res) => {
+    const taskId = req.params.id;
+    db.run("DELETE FROM todos WHERE id = ?", taskId);
+
+    res.send("Task deleted successfully");
 });
 
 
